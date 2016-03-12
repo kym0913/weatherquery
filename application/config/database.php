@@ -75,10 +75,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '127.0.0.1',#初始安装，请在这里修改
-	'username' => 'kym0913',#初始安装，请在这里修改
-	'password' => '12235191',#初始安装，请在这里修改
-	'database' => 'kym0913',#初始安装，请在这里修改
+	'hostname' => 'localhost',#初始安装，请在这里修改
+	'username' => 'root',#初始安装，请在这里修改
+	'password' => '',#初始安装，请在这里修改
+	'database' => 'myaci',#初始安装，请在这里修改
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

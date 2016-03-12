@@ -43,6 +43,8 @@
  */
 class Wechat
 {
+	const WEATHERKEY = '4a96e2495b83bae4a0e41d9dd31f61fe';
+	const WEATHERURL = 'http://op.juhe.cn/onebox/weather/query';
 	const MSGTYPE_TEXT = 'text';
 	const MSGTYPE_IMAGE = 'image';
 	const MSGTYPE_LOCATION = 'location';
@@ -364,7 +366,7 @@ class Wechat
 	public function getRev()
 	{
 		if ($this->_receive) return $this;
-		$postStr = !empty($this->postxml)?$this->postxml:file_get_contents("php://input");
+		$postStr = !empty($this->postxml)?$this->postxml:file_get_contents("php://input");//接收xml数据
 		//兼顾使用明文又不想调用valid()方法的情况
 		$this->log($postStr);
 		if (!empty($postStr)) {
@@ -1013,6 +1015,69 @@ class Wechat
 	 *  	"1"=>....
 	 *  )
 	 */
+	 public function getweather($str_key)
+	 {
+		 $params = array(
+      "cityname" => $str_key,//要查询的城市，如：温州、上海、北京
+      "key" => self::WEATHERKEY,//应用APPKEY(应用详细页查询)
+      "dtype" => "",//返回数据的格式,xml或json，默认json
+										);
+			$paramstring = http_build_query($params);
+			$content = $this->yzcurl(self::WEATHERURL,$paramstring);
+			$result = json_decode($content,true);
+			if($result)
+			{
+    		if($result['error_code']=='0')
+				{
+        			print_r($result);
+    		}else{
+        			echo $result['error_code'].":".$result['reason'];
+    					}
+			}else{
+    		echo "请求失败";
+						}
+
+				return $result;
+
+//end
+	 }
+
+	 public function yzcurl($url,$params=false,$ispost=0){
+	     $httpInfo = array();
+	     $ch = curl_init();
+
+	     curl_setopt( $ch, CURLOPT_HTTP_VERSION , CURL_HTTP_VERSION_1_1 );
+	     curl_setopt( $ch, CURLOPT_USERAGENT , 'JuheData' );
+	     curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT , 60 );
+	     curl_setopt( $ch, CURLOPT_TIMEOUT , 60);
+	     curl_setopt( $ch, CURLOPT_RETURNTRANSFER , true );
+	     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	     if( $ispost )
+	     {
+	         curl_setopt( $ch , CURLOPT_POST , true );
+	         curl_setopt( $ch , CURLOPT_POSTFIELDS , $params );
+	         curl_setopt( $ch , CURLOPT_URL , $url );
+	     }
+	     else
+	     {
+	         if($params){
+	             curl_setopt( $ch , CURLOPT_URL , $url.'?'.$params );
+	         }else{
+	             curl_setopt( $ch , CURLOPT_URL , $url);
+	         }
+	     }
+	     $response = curl_exec( $ch );
+	     if ($response === FALSE) {
+	         //echo "cURL Error: " . curl_error($ch);
+	         return false;
+	     }
+	     $httpCode = curl_getinfo( $ch , CURLINFO_HTTP_CODE );
+	     $httpInfo = array_merge( $httpInfo , curl_getinfo( $ch ) );
+	     curl_close( $ch );
+	     return $response;
+	 }
+
+
 	public function news($newsData=array())
 	{
 		$FuncFlag = $this->_funcflag ? 1 : 0;
@@ -1038,7 +1103,7 @@ class Wechat
 	 * @param string $msg 要发送的信息, 默认取$this->_msg
 	 * @param bool $return 是否返回信息而不抛出到浏览器 默认:否
 	 */
-	public function reply($msg=array(),$return = false)
+	public function reply($msg=array(),$return = false)//yz
 	{
 		if (empty($msg)) {
 		    if (empty($this->_msg))   //防止不先设置回复内容，直接调用reply方法导致异常

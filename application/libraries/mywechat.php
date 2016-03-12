@@ -18,8 +18,16 @@ class MyWechat extends WechatEx {
 {
    $this->text('悄悄地我走了，正如我悄悄地来。')->reply();
 }
- protected function onText(){
-   $this->text('您的消息我们会尽力一一回复')->reply();
+ protected function onText($textcontent){
+   $str = mb_substr($textcontent,-2,2,"UTF-8");
+   $str_key=mb_substr($textcontent,0,-2,"UTF-8");
+   if($str == "天气"){
+     $str_key=$this->getweather($str_key);
+     $str_key=$str_key['temperature'];
+   }else{
+     $str_key="您的消息我们将会留心，查询天气格式（城市+天气），例如：无锡天气";
+   }
+   $this->text($str_key)->reply();
  }
  protected function onImage(){
    $this->text("this's an image")->reply();

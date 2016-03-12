@@ -24,11 +24,12 @@ class WechatEx extends Wechat{
 
   public function run()
 {
-  $this->valid();
-  $type = $this -> getRev() ->getRevType();
+  //$this->valid();
+  $type = $this -> getRev() ->getRevType();//获取类型
   switch ($type) {
     case Wechat::MSGTYPE_TEXT:
-      $this->onText();
+      $textcontent=$this -> getRev() ->getRevContent();//获取内容
+      $this->onText($textcontent);
       break;
     case Wechat::MSGTYPE_EVENT:
     $info = $this ->getRevEvent();//event,key

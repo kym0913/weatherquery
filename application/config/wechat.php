@@ -1,8 +1,8 @@
 <?php
 $config['wechat'] = array(
   'token'=>'weixin', //填写你设定的key
-  'appid'=>'wx076430f8e7e5886d', //填写高级调用功能的app id
-  'appsecret'=>'995efcfab8bfec03076aa69d3cf6a5c4 ', //
+  'appid'=>'wx7cf2f38dcfb28d91', //填写高级调用功能的app id
+  'appsecret'=>'3b67147276b813bf88a711e00fc17a57 ', //
 
   'partnerid'=>'', //财付通商户身份标识
   'partnerkey'=>'', //财付通商户权限密钥Key
