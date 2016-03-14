@@ -43,8 +43,9 @@
  */
 class Wechat
 {
+	const DEGREENS_CELSIUS = '℃';
 	const WEATHERKEY = '4a96e2495b83bae4a0e41d9dd31f61fe';
-	const WEATHERURL = 'http://op.juhe.cn/onebox/weather/query';
+	const WEATHERURL = 'http://op.juhe.cn/onebox/weather/query?';
 	const MSGTYPE_TEXT = 'text';
 	const MSGTYPE_IMAGE = 'image';
 	const MSGTYPE_LOCATION = 'location';
@@ -165,6 +166,7 @@ class Wechat
 	const CARD_BOARDINGPASS_CHECKIN       = '/card/boardingpass/checkin?';     //飞机票-在线选座(未加方法)
 	const CARD_LUCKYMONEY_UPDATE          = '/card/luckymoney/updateuserbalance?';     //更新红包金额
 	const SEMANTIC_API_URL = '/semantic/semproxy/search?'; //语义理解
+	const WEATHERTIP = "不好意思，暂不支持该城市！";
 	///数据分析接口
 	static $DATACUBE_URL_ARR = array(        //用户分析
 	        'user' => array(
@@ -1017,13 +1019,13 @@ class Wechat
 	 */
 	 public function getweather($str_key)
 	 {
-		 $params = array(
-      "cityname" => $str_key,//要查询的城市，如：温州、上海、北京
-      "key" => self::WEATHERKEY,//应用APPKEY(应用详细页查询)
-      "dtype" => "",//返回数据的格式,xml或json，默认json
+		 	$params = array(
+      	"cityname" => $str_key,//要查询的城市，如：温州、上海、北京
+      	"key" => self::WEATHERKEY,//应用APPKEY(应用详细页查询)
 										);
 			$paramstring = http_build_query($params);
-			$content = $this->yzcurl(self::WEATHERURL,$paramstring);
+			$weaurl=self::WEATHERURL.$paramstring;
+			$content=$this->http_get($weaurl);
 			$result = json_decode($content,true);
 			if($result)
 			{
@@ -1042,40 +1044,7 @@ class Wechat
 //end
 	 }
 
-	 public function yzcurl($url,$params=false,$ispost=0){
-	     $httpInfo = array();
-	     $ch = curl_init();
 
-	     curl_setopt( $ch, CURLOPT_HTTP_VERSION , CURL_HTTP_VERSION_1_1 );
-	     curl_setopt( $ch, CURLOPT_USERAGENT , 'JuheData' );
-	     curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT , 60 );
-	     curl_setopt( $ch, CURLOPT_TIMEOUT , 60);
-	     curl_setopt( $ch, CURLOPT_RETURNTRANSFER , true );
-	     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-	     if( $ispost )
-	     {
-	         curl_setopt( $ch , CURLOPT_POST , true );
-	         curl_setopt( $ch , CURLOPT_POSTFIELDS , $params );
-	         curl_setopt( $ch , CURLOPT_URL , $url );
-	     }
-	     else
-	     {
-	         if($params){
-	             curl_setopt( $ch , CURLOPT_URL , $url.'?'.$params );
-	         }else{
-	             curl_setopt( $ch , CURLOPT_URL , $url);
-	         }
-	     }
-	     $response = curl_exec( $ch );
-	     if ($response === FALSE) {
-	         //echo "cURL Error: " . curl_error($ch);
-	         return false;
-	     }
-	     $httpCode = curl_getinfo( $ch , CURLINFO_HTTP_CODE );
-	     $httpInfo = array_merge( $httpInfo , curl_getinfo( $ch ) );
-	     curl_close( $ch );
-	     return $response;
-	 }
 
 
 	public function news($newsData=array())

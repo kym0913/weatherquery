@@ -18,16 +18,43 @@ class MyWechat extends WechatEx {
 {
    $this->text('悄悄地我走了，正如我悄悄地来。')->reply();
 }
+
+
+
+
  protected function onText($textcontent){
    $str = mb_substr($textcontent,-2,2,"UTF-8");
    $str_key=mb_substr($textcontent,0,-2,"UTF-8");
    if($str == "天气"){
-     $str_key=$this->getweather($str_key);
-     $str_key=$str_key['temperature'];
+     $getreturn=$this->getweather($str_key);
+
+     $getweathercity=$getreturn['result']['data']['realtime']['city_name'];
+     $getweatherchuouptime=$getreturn['result']['data']['realtime']['dataUptime'];
+
+     $getweatherinfo=$getreturn['result']['data']['realtime']['weather']['info'];
+     $gettemperatureday=$getreturn['result']['data']['weather'][0]['info']['day']['2'];
+     $gettemperaturenight=$getreturn['result']['data']['weather'][0]['info']['night']['2'];
+
+     $getweatherkindlytipstatus=$getreturn['result']['data']['life']['info']['chuanyi'][0];
+     $getweatherkindlytipmore=$getreturn['result']['data']['life']['info']['chuanyi'][1];
+
+     $getweatheruptime=date("Y-m-d H", $getweatherchuouptime);
+
+     if(!empty($getreturn['result']))
+     {
+       $wearesult="【".$getweathercity."天气预报】\n".$getweatheruptime."时发布"
+       ."\n\n实时天气\n".$getweatherinfo." ".$gettemperatureday.wechat::DEGREENS_CELSIUS." ~ ".$gettemperaturenight.wechat::DEGREENS_CELSIUS
+       ."\n\n温馨提示："."天气".$getweatherkindlytipstatus."\n".$getweatherkindlytipmore;
+     }else
+     {
+       $wearesult=wechat::WEATHERTIP;
+     }
+
+
    }else{
-     $str_key="您的消息我们将会留心，查询天气格式（城市+天气），例如：无锡天气";
+     $wearesult="您的消息我们将会留心，查询天气格式（城市+天气），例如：无锡天气";
    }
-   $this->text($str_key)->reply();
+   $this->text($wearesult)->reply();
  }
  protected function onImage(){
    $this->text("this's an image")->reply();
