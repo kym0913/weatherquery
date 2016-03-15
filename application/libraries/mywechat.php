@@ -80,7 +80,7 @@ class MyWechat extends WechatEx {
 
 
    }else{
-     $wearesult="您的消息我们将会留心，查询天气格式（城市+天气），例如：无锡天气";
+     $wearesult="您的消息我们将会留心，查询天气格式（城市+天气），例如：上海天气";
    }
    $this->text($wearesult)->reply();
  }
