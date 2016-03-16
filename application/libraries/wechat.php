@@ -43,6 +43,9 @@
  */
 class Wechat
 {
+	const TENCENTGEO_KEY='ITNBZ-5CDR3-QWC3V-3N5RJ-CEXRH-U3BQV';
+	const GETADDRESS='http://apis.map.qq.com/ws/geocoder/v1/?';
+	const TRANSCOOR='http://apis.map.qq.com/ws/coord/v1/translate?';
 	const DEGREENS_CELSIUS = '℃';
 	const WEATHERKEY = '4a96e2495b83bae4a0e41d9dd31f61fe';
 	const WEATHERURL = 'http://op.juhe.cn/onebox/weather/query?';
@@ -231,11 +234,16 @@ class Wechat
 	private $_msg;
 	private $_funcflag = false;
 	private $_receive;
+	private $_geopos;
 	private $_text_filter = true;
 	public $debug =  false;
 	public $errCode = 40001;
 	public $errMsg = "no access";
 	public $logcallback;
+	public $tenlat;
+	public $tenlng;
+
+
 
 	public function __construct($options)
 	{
@@ -376,6 +384,69 @@ class Wechat
 		}
 		return $this;
 	}
+/*
+	const TENCENTGEO_KEY='ITNBZ-5CDR3-QWC3V-3N5RJ-CEXRH-U3BQV';
+	const GETADDRESS='http://apis.map.qq.com/ws/geocoder/v1/?';
+	const TRANSCOOR='http://apis.map.qq.com/ws/coord/v1/translate?';
+
+
+*/
+
+	public function getwcposition()
+	{
+		$wcinfo=$this->getRevEventGeo();
+		$x=$wcinfo['x'];
+		$y=$wcinfo['y'];
+		$openid=$wcinfo['useropenid'];
+		$result=$this->gettranscoor($x,$y,$openid);
+		return $result;
+	}
+
+
+	public function gettranscoor($lat,$lng,$openid)
+	{
+		$params = array(
+			"locations"=>$lat.",".$lng,
+			"type" => "1",
+			"key" => self::TENCENTGEO_KEY,//应用APPKEY(应用详细页查询)
+									);
+		$paramstring = http_build_query($params);
+		$result = $this->http_get(self::TRANSCOOR.$paramstring);
+		$json = json_decode($result,true);
+		$this->tenlat = $json['locations'][0]['lat'];
+		$this->tenlng = $json['locations'][0]['lng'];
+		$tencoor= array(
+				'lat'=>$this->tenlat,
+				'lng'=>$this->tenlng,
+								);
+		 $result=$this->gettranscooraddress($tencoor,$openid);
+		 return $result;
+	}
+
+
+	public function gettranscooraddress($tencoor,$openid)
+	{
+		$tencoorvalue=$tencoor['lat'].','.$tencoor['lng'];
+		$params = array(
+			"location" => $tencoorvalue,
+			"get_poi" => "0",
+			"key" => self::TENCENTGEO_KEY,//应用APPKEY(应用详细页查询)
+									);
+		$paramstring = http_build_query($params);
+		$result = $this->http_get(self::GETADDRESS.$paramstring);
+		$json = json_decode($result,true);
+
+		$percity=$json['result']['address_component']['district'];
+		$peraddressmore=$json['result']['address'];
+		$thattime=date("Y-m-d,H:i:s",time());
+
+		return array(
+			'usercity'=>$percity,
+			'usermoreaddress'=>$peraddressmore,
+			'thattime'=>$thattime,
+			'openid'=>$openid,
+		);
+	}
 
 	/**
 	 * 获取微信服务器发来的信息
@@ -497,6 +568,7 @@ class Wechat
         		 return array(
 				'x'=>$this->_receive['Latitude'],
 				'y'=>$this->_receive['Longitude'],
+				'useropenid'=>$this->_receive['FromUserName'],
 				'precision'=>$this->_receive['Precision'],
 			);
 		} else

@@ -22,7 +22,7 @@ class MyWechat extends WechatEx {
 
 
 
- protected function onText($textcontent){
+ public function onText($textcontent,$address){
    $str = mb_substr($textcontent,-2,2,"UTF-8");
    $str_key=mb_substr($textcontent,0,-2,"UTF-8");
    if($str == "天气"){
@@ -64,6 +64,7 @@ class MyWechat extends WechatEx {
      if(!empty($getreturn['result']))
      {
        $wearesult="【".$getweathercity."天气预报】\n".$getweatheruptime."时发布"
+       ."\n\n您的位置在\n".$address."附近"
        ."\n\n实时天气\n".$getweatherinfo." ".$gettemperatureday.wechat::DEGREENS_CELSIUS." ~ ".$gettemperaturenight.wechat::DEGREENS_CELSIUS." ".$getwinddir
        ." ".$getwindpowlev
        ."\n\n温馨提示："."天气".$getweatherkindlytipstatus."\n".$getweatherkindlytipmore
@@ -89,8 +90,12 @@ class MyWechat extends WechatEx {
  }
  protected function onLocation()
 {
-   $info = $this->getRevGeo();
-   $this->text("收到了位置消息：({$info['x']},{$info['y']})")->reply();
+   $info = $this->getwcposition();
+   $address = $info['usermoreaddress'];
+   $textcontent=$info['usercity']."天气";
+   $this->onText($textcontent,$address);
+
+
 }
  protected function onLink()
 {

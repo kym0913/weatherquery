@@ -44,11 +44,24 @@ $config['wechat_menu'] = array(
                      )
                    )
                ),
-          array(
-            "type"=>"click",
-            "name"=>"今日资讯",
-            "key"=>"V1001_TODAY_MUSIC"
-          )
+
+
+           array(
+            "name"=>"生活服务",
+            "sub_button"=>
+              array(
+                array(
+                  "type"=>"click",
+                  "name"=>"实时天气查询",
+                  "key"=>"searchweather"
+                      ),
+                array(
+                  "type"=>"click",
+                  "name"=>"未开放",
+                  "key"=>"notopen"
+                      )
+                    )
+                ),
 
   )
 );
