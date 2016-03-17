@@ -9,10 +9,13 @@ class Weixin extends MY_Controller{
     $options = $this->config->item('wechat');
     $options['logcallback'] = 'logdebug';
     $this->load->library('mywechat', $options);
+    $this->load->model(array('weather'));
   }
   public function api()
   {
     $this->mywechat->run();
+    $result=$this->mywechat->getlocreturn();
+    $res=$this->weather->index($result['address'],$result['textcontent'],$result['openid'],$result['thattime']);
   }
   public function menu()
   {
@@ -69,6 +72,7 @@ class Weixin extends MY_Controller{
   $type=$flag['type'];
   $media_id=$type=='thumb'?$flag['thumb_media_id']:$flag['media_id'];
   $created_at=$flag['created_at'];
+
   $result_updata=$this->ulwxanddata->index($type,$media_id,$created_at,$media_name);
   echo !$result_updata?"重复？".$media_id:'success!';
     //echo !$flag?'FALSE':'success';

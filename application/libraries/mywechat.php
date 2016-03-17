@@ -2,6 +2,10 @@
 include APPPATH.'libraries/wechatex.php';
 class MyWechat extends WechatEx {
   private $_ci;
+  private $address;
+  private $textcontent;
+  private $openid;
+  private $thattime;
   function __construct($options){
     parent::__construct($options);
     if (function_exists("get_instance") && defined("APPPATH")){
@@ -22,7 +26,7 @@ class MyWechat extends WechatEx {
 
 
 
- public function onText($textcontent,$address){
+ public function onText($textcontent){
    $str = mb_substr($textcontent,-2,2,"UTF-8");
    $str_key=mb_substr($textcontent,0,-2,"UTF-8");
    if($str == "天气"){
@@ -64,7 +68,7 @@ class MyWechat extends WechatEx {
      if(!empty($getreturn['result']))
      {
        $wearesult="【".$getweathercity."天气预报】\n".$getweatheruptime."时发布"
-       ."\n\n您的位置在\n".$address."附近"
+       //."\n\n您的位置：\n".$res."附近"
        ."\n\n实时天气\n".$getweatherinfo." ".$gettemperatureday.wechat::DEGREENS_CELSIUS." ~ ".$gettemperaturenight.wechat::DEGREENS_CELSIUS." ".$getwinddir
        ." ".$getwindpowlev
        ."\n\n温馨提示："."天气".$getweatherkindlytipstatus."\n".$getweatherkindlytipmore
@@ -88,13 +92,31 @@ class MyWechat extends WechatEx {
  protected function onImage(){
    $this->text("this's an image")->reply();
  }
+
+ public function getlocreturn()
+ {
+   if(!empty($this->textcontent))
+   {
+     return array(
+       'address' => $this->address,
+       'textcontent' => $this->textcontent,
+       'openid' => $this->openid,
+       'thattime' => $this->thattime,
+                  );
+   }else{
+     return False;
+   }
+ }
+
  protected function onLocation()
 {
    $info = $this->getwcposition();
-   $address = $info['usermoreaddress'];
-   $textcontent=$info['usercity']."天气";
-   $this->onText($textcontent,$address);
-
+   $this->address = $info['usermoreaddress'];
+   $this->textcontent=$info['usercity'];
+   $this->openid=$info['openid'];
+   $this->thattime=$info['thattime'];
+   $textcontent=$this->textcontent."天气";
+   $this->onText($textcontent);
 
 }
  protected function onLink()

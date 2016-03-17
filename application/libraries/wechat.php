@@ -1089,6 +1089,9 @@ class Wechat
 	 *  	"1"=>....
 	 *  )
 	 */
+
+
+
 	 public function getweather($str_key)
 	 {
 		 	$params = array(
